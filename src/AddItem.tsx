@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { supabase } from './supabaseClient';
 
-const AddItem = () => {
+interface IProps {
+    fetchData: () => void;
+}
+
+const AddItem: FC<IProps> = ({fetchData}) => {
     const [name, setName] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -21,6 +25,7 @@ const AddItem = () => {
             setError('Ошибка добавления элемента: ' + error.message);
         } else {
             setSuccess('Элемент успешно добавлен: ' + JSON.stringify(data));
+            fetchData();
             setName(''); // Сбросить поле ввода
         }
     };
