@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+import AddItem from './AddItem';
 
 const App = () => {
   const [data, setData] = useState<any[]>([]);
@@ -29,6 +30,7 @@ const App = () => {
           <li>{JSON.stringify(item)}</li>
         ))}
       </ul>
+      <AddItem />
     </div>
   );
 };
