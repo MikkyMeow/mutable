@@ -3,17 +3,17 @@ import { FC, useState } from "react";
 import { supabase } from "./supabaseClient";
 
 interface IProps {
-    updateText: { id: number; name: string };
+    updateText: { id: number; text: string };
     onClose: () => void;
 }
 
 export const UpdateItem: FC<IProps> = ({ updateText, onClose }) => {
-    const [text, setText] = useState(updateText.name);
+    const [text, setText] = useState(updateText.text);
 
     const updateItem = async () => {
         const { data, error } = await supabase
-            .from('test') // Замените 'your_table_name' на имя вашей таблицы
-            .update({ name: text }) // Устанавливаем новое значение для поля 'name'
+            .from('test') // Замените 'your_table_text' на имя вашей таблицы
+            .update({ text }) // Устанавливаем новое значение для поля 'name'
             .match({ id: updateText.id }); // Замените id на соответствующее поле, по которому нужно обновить
 
         if (error) {
@@ -28,7 +28,7 @@ export const UpdateItem: FC<IProps> = ({ updateText, onClose }) => {
             updateItem();
             onClose();
         }}>
-            <TextField value={text} onChange={(e) => setText(e.target.value)} />
+            <TextField autoFocus value={text} onChange={(e) => setText(e.target.value)} />
         </Dialog>
     )
 }

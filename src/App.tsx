@@ -7,7 +7,7 @@ import { UpdateItem } from './UpdateItem';
 const App = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [updateText, setUpdateText] = useState<{ id: number; name: string } | null>(null);
+  const [updateText, setUpdateText] = useState<{ id: number; text: string } | null>(null);
 
   const fetchData = useCallback(async () => {
     const { data: fetchedData, error } = await supabase.from('test').select('*');
@@ -46,13 +46,15 @@ const App = () => {
         <TableHead>
           <TableCell>ID</TableCell>
           <TableCell>Name</TableCell>
+          <TableCell>Created at</TableCell>
           <TableCell></TableCell>
         </TableHead>
         <TableBody>
-          {data.map(({ id, name }) => (
+          {data.map(({ id, text, created_at }) => (
             <TableRow>
               <TableCell>{id}</TableCell>
-              <TableCell onClick={() => setUpdateText({ id, name })}>{name}</TableCell>
+              <TableCell onClick={() => setUpdateText({ id, text })}>{text}</TableCell>
+              <TableCell>{created_at}</TableCell>
               <TableCell><button onClick={() => deleteItem(id)}>remove</button></TableCell>
             </TableRow>
           ))}
