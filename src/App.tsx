@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient';
 import AddItem from './AddItem';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { UpdateItem } from './UpdateItem';
+import { formatDateToDDMMYYYY } from './helpers';
 
 const App = () => {
   const [data, setData] = useState<any[]>([]);
@@ -10,7 +11,7 @@ const App = () => {
   const [updateText, setUpdateText] = useState<{ id: number; text: string } | null>(null);
 
   const fetchData = useCallback(async () => {
-    const { data: fetchedData, error } = await supabase.from('test').select('*');
+    const { data: fetchedData, error } = await supabase.from('test').select('*').order('created_at', { ascending: true });
     if (error) {
       console.error('Ошибка загрузки данных:', error);
     } else {
@@ -44,7 +45,6 @@ const App = () => {
       <h1>Данные из Supabase</h1>
       <Table>
         <TableHead>
-          <TableCell>ID</TableCell>
           <TableCell>Name</TableCell>
           <TableCell>Created at</TableCell>
           <TableCell></TableCell>
@@ -52,9 +52,8 @@ const App = () => {
         <TableBody>
           {data.map(({ id, text, created_at }) => (
             <TableRow>
-              <TableCell>{id}</TableCell>
               <TableCell onClick={() => setUpdateText({ id, text })}>{text}</TableCell>
-              <TableCell>{created_at}</TableCell>
+              <TableCell>{formatDateToDDMMYYYY(created_at)}</TableCell>
               <TableCell><button onClick={() => deleteItem(id)}>remove</button></TableCell>
             </TableRow>
           ))}
