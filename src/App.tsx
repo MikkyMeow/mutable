@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import AddItem from './AddItem';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Chip, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { UpdateItem } from './UpdateItem';
 import { formatDateToDDMMYYYY } from './helpers';
+import { TProgress } from './types';
+
+interface ITodo {
+  created_at: string;
+  id: number;
+  progress: TProgress;
+  tags: string[];
+  text: string;
+}
 
 const App = () => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ITodo[]>([]);
   const [loading, setLoading] = useState(true);
   const [updateText, setUpdateText] = useState<{ id: number; text: string } | null>(null);
 
@@ -47,13 +56,15 @@ const App = () => {
         <TableHead>
           <TableCell>Name</TableCell>
           <TableCell>Created at</TableCell>
+          <TableCell>Progress</TableCell>
           <TableCell></TableCell>
         </TableHead>
         <TableBody>
-          {data.map(({ id, text, created_at }) => (
+          {data.map(({ id, text, created_at, progress }) => (
             <TableRow>
               <TableCell onClick={() => setUpdateText({ id, text })}>{text}</TableCell>
               <TableCell>{formatDateToDDMMYYYY(created_at)}</TableCell>
+              <TableCell><Chip label={progress} /></TableCell>
               <TableCell><button onClick={() => deleteItem(id)}>remove</button></TableCell>
             </TableRow>
           ))}
