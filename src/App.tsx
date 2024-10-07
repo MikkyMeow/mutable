@@ -1,70 +1,110 @@
-import { useCallback, useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
-import AddItem from './AddItem';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { UpdateItem } from './UpdateItem';
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { supabase } from "./supabaseClient";
+import { Button, TextField } from "@mui/material";
+import { edit } from "./actions/edit";
+import { getRandomHash } from "./helpers";
+import { add } from "./actions/add";
+import { remove } from "./actions/remove";
+import styles from "./App.module.css";
+import { setChecked } from "./actions/setChecked";
+
+export interface ITodo {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
+// баги
+// Если инпут пустой. оставлять прежнее значение
 
 const App = () => {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updateText, setUpdateText] = useState<{ id: number; name: string } | null>(null);
+  const [todoId, setTodoId] = useState(NaN);
+  const [todos, setTodos] = useState<ITodo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEdit, setIsEdit] = useState("");
 
-  const fetchData = useCallback(async () => {
-    const { data: fetchedData, error } = await supabase.from('test').select('*');
+  const fetchTodos = useCallback(async () => {
+    const { data: fetchedData, error } = await supabase
+      .from("todo")
+      .select("*");
     if (error) {
-      console.error('Ошибка загрузки данных:', error);
+      console.error("Ошибка загрузки данных:", error);
     } else {
-      setData(fetchedData);
+      setTodoId(fetchedData[0].id);
+      setTodos(fetchedData[0].todo);
     }
-    setLoading(false);
-  }, [])
-
-  useEffect(() => {
-    fetchData();
+    setIsLoading(false);
   }, []);
 
-  const deleteItem = async (id: number) => {
-    const { data, error } = await supabase
-      .from('test') // Замените 'your_table_name' на имя вашей таблицы
-      .delete()
-      .match({ id }); // Замените id на соответствующее поле, по которому нужно удалить
+  useEffect(() => {
+    fetchTodos();
+  }, []);
+
+  const updateTodos = async () => {
+    const { error } = await supabase
+      .from("todo")
+      .update({ todo: todos })
+      .eq("id", todoId);
 
     if (error) {
-      console.error('Ошибка удаления элемента:', error);
+      console.log(error);
     } else {
-      console.log('Элемент успешно удалён:', data);
-      fetchData();
+      fetchTodos();
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
+  if (isLoading) return <div>Загрузка...</div>;
 
   return (
-    <div>
-      <h1>Данные из Supabase</h1>
-      <Table>
-        <TableHead>
-          <TableCell>ID</TableCell>
-          <TableCell>Name</TableCell>
-          <TableCell></TableCell>
-        </TableHead>
-        <TableBody>
-          {data.map(({ id, name }) => (
-            <TableRow>
-              <TableCell>{id}</TableCell>
-              <TableCell onClick={() => setUpdateText({ id, name })}>{name}</TableCell>
-              <TableCell><button onClick={() => deleteItem(id)}>remove</button></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <AddItem fetchData={fetchData} />
-      {updateText && (
-        <UpdateItem updateText={updateText} onClose={() => {
-          setUpdateText(null)
-          fetchData();
-        }} />
-      )}
+    <div className={styles.root}>
+      {todos.map((todo) => (
+        <div key={todo.id} className={styles.todo}>
+          <>
+            <input
+              className={styles.checkbox}
+              type="checkbox"
+              checked={todo.checked}
+              onChange={(e) =>
+                setTodos(setChecked(todos, todo.id, e.target.checked))
+              }
+            />
+            {todo.id !== isEdit ? (
+              <p className={styles.text} onClick={() => setIsEdit(todo.id)}>
+                {todo.text}{" "}
+              </p>
+            ) : (
+              <input
+                className={styles.editInput}
+                autoFocus
+                defaultValue={todo.text}
+                onBlur={(e) => {
+                  setTodos(edit(todos, todo.id, e.target.value));
+                  setIsEdit("");
+                }}
+              />
+            )}
+            <button
+              className={styles.removeButton}
+              onClick={() => setTodos(remove(todos, todo.id))}
+            >
+              X
+            </button>
+          </>
+        </div>
+      ))}
+      <TextField
+        variant="standard"
+        placeholder="New value"
+        onBlur={(e) => {
+          setTodos(add(todos, getRandomHash(), e.target.value));
+          e.target.value = "";
+        }}
+      />
+      <div>
+        <Button variant="outlined" onClick={updateTodos}>
+          Update
+        </Button>
+      </div>
     </div>
   );
 };

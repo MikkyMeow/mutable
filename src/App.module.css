@@ -1,0 +1,38 @@
+.root {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.todo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #666666;
+  height: 23px;
+}
+
+.todo:first-child {
+  border-top: 1px solid #666666;
+}
+
+.text {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.editInput {
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.removeButton {
+  width: 25px;
+  height: 25px;
+}
+
+.checkbox {
+  width: 25px;
+  height: 25px;
+  margin: 0;
+}
