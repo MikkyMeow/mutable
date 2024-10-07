@@ -1,0 +1,1 @@
+export type TProgress = 'TODO' | 'IN_PROGRESS' | 'DONE';
